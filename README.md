@@ -1,5 +1,5 @@
-#MERN CRUD app with authentication
-##Running the application
+# MERN CRUD app with authentication
+## Running the application
 1. Open a project directory
 2.
 ```
