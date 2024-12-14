@@ -1,130 +1,154 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-dom/client";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router';
+import '../style.css'; // Import the CSS
 
-function DishUpdate(props) {
-    const initialState = {
-        name: "",
-        description: "",
-        price: "",
-        restaurant: "",
-        category: ""
-    };
+const DishUpdate = () => {
+	const { dishId } = useParams(); // Get the dishId from the URL
+	const [dish, setDish] = useState(null);
 
-    const [dish, setDish] = useState(initialState);
-    const [error, setError] = useState(null);
+	const [name, setName] = useState('');
+	const [description, setDescription] = useState('');
+	const [price, setPrice] = useState(0);
+	const [restaurant, setRestaurant] = useState('');
+	const [category, setCategory] = useState('');
+	const [restaurants, setRestaurants] = useState([]);
+	const [categories, setCategories] = useState([]);
 
-    const { id } = useParams(); // Fetch the dish ID from the URL params
-    const navigate = useNavigate();
+	// Fetch restaurants and categories when component mounts
+	useEffect(() => {
+		const fetchRestaurants = async () => {
+			try {
+				const res = await axios.get('http://localhost:3000/api/restaurants');
+				setRestaurants(res.data);
+			} catch (err) {
+				console.error('Error fetching restaurants:', err);
+			}
+		};
 
-    // Fetch existing dish data to populate the form
-    useEffect(() => {
-        async function fetchDish() {
-            try {
-                const response = await axios.get(`/api/dishes/${id}`);
-                setDish(response.data);
-            } catch (error) {
-                console.error("Error fetching dish data:", error);
-                setError("Unable to load dish data. Please try again later.");
-            }
-        }
-        fetchDish();
-    }, [id]);
+		const fetchCategories = async () => {
+			try {
+				const res = await axios.get('http://localhost:3000/api/categories');
+				setCategories(res.data);
+			} catch (err) {
+				console.error('Error fetching categories:', err);
+			}
+		};
 
-    function handleChange(event) {
-        const { name, value } = event.target;
-        setDish({ ...dish, [name]: value });
-    }
+		const fetchDish = async () => {
+			console.log("aboba2");
+			if (!dishId) return;
+			console.log("aboba3");
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-        try {
-            const response = await axios.put(`/api/dishes/${id}`, dish);
-            navigate(`/dishes/${response.data.dish._id}`); // Navigate to the updated dish's details page
-        } catch (error) {
-            console.error("Error updating dish:", error);
-            setError("Error updating dish. Please try again.");
-        }
-    }
+			try {
+				const res = await axios.get(`http://localhost:3000/api/dishes/${dishId}`);
+				console.log("dishdata ",res.data);
+				setDish(res.data);
+				setName(res.data.name);
+				setPrice(res.data.price);
+				setDescription(res.data.desciption);
+				setCategory(res.data.category);
+				setRestaurant(res.data.restaurant);
+			} catch (err) {
+				console.error('Error fetching dish:', err);
+			}
+		};
 
-    function handleCancel() {
-        navigate("/dishes"); // Navigate back to the dishes list
-    }
+		fetchRestaurants();
+		fetchCategories();
+		fetchDish();
+	}, [dishId]);
 
-    return (
-        <div className="container" style={{ maxWidth: "400px" }}>
-            <h1>Update Dish</h1>
-            <hr />
-            {error && <p className="text-danger">{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Name</label>
-                    <input
-                        name="name"
-                        type="text"
-                        required
-                        value={dish.name}
-                        onChange={handleChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Description</label>
-                    <textarea
-                        name="description"
-                        rows="3"
-                        value={dish.description}
-                        onChange={handleChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Price</label>
-                    <input
-                        name="price"
-                        type="number"
-                        step="0.01"
-                        required
-                        value={dish.price}
-                        onChange={handleChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Restaurant</label>
-                    <input
-                        name="restaurant"
-                        type="text"
-                        required
-                        value={dish.restaurant}
-                        onChange={handleChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Category</label>
-                    <input
-                        name="category"
-                        type="text"
-                        value={dish.category}
-                        onChange={handleChange}
-                        className="form-control"
-                    />
-                </div>
+	const handleSubmit = async (e) => {
+		e.preventDefault();
 
-                <div className="btn-group">
-                    <input type="submit" value="Update" className="btn btn-primary" />
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="btn btn-secondary"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-}
+		try {
+			await axios.put(`http://localhost:3000/api/dishes/${dishId}`, {name: name, desciption: description, price: price, category: category, restaurant: restaurant});
+			alert('Dish updated successfully!');
+		} catch (err) {
+			console.error('Error updating dish:', err);
+			alert('Failed to update dish. Please try again.');
+		}
+	};
+
+	return (
+		<form onSubmit={handleSubmit} className="form-container">
+			<div>
+				<label htmlFor="name">Dish Name:</label>
+				<input
+					type="text"
+					id="name"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					required
+					minLength={3}
+					maxLength={45}
+				/>
+			</div>
+
+			<div>
+				<label htmlFor="description">Description:</label>
+				<textarea
+					id="description"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					maxLength={500}
+					className="form-container-textarea"
+				></textarea>
+			</div>
+
+			<div>
+				<label htmlFor="price">Price:</label>
+				<input
+					type="number"
+					id="price"
+					value={price}
+					onChange={(e) => setPrice(parseFloat(e.target.value))}
+					required
+					min={0}
+					max={10000000}
+				/>
+			</div>
+
+			<div>
+				<label htmlFor="restaurant">Restaurant:</label>
+				<select
+					id="restaurant"
+					value={restaurant}
+					onChange={(e) => setRestaurant(e.target.value)}
+					required
+					className="form-container-select"
+				>
+					<option value="">Select a restaurant</option>
+					{restaurants.map((r) => (
+						<option key={r._id} value={r._id}>
+							{r.restaurantName}
+						</option>
+					))}
+				</select>
+			</div>
+
+			<div>
+				<label htmlFor="category">Category:</label>
+				<select
+					id="category"
+					value={category}
+					onChange={(e) => setCategory(e.target.value)}
+					required
+					className="form-container-select"
+				>
+					<option value="">Select a category</option>
+					{categories.map((c) => (
+						<option key={c._id} value={c._id}>
+							{c.name}
+						</option>
+					))}
+				</select>
+			</div>
+
+			<button type="submit" className="create-button">Update Dish</button>
+		</form>
+	);
+};
 
 export default DishUpdate;

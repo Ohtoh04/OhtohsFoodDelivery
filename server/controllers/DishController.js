@@ -26,7 +26,6 @@ exports.createDish = async (req, res) => {
 
 // Get all dishes
 exports.getDishes = async (req, res) => {
-    console.log("aboba");
     try {
         const dishes = await Dish.find()
             .populate('restaurant', 'name') // Populate restaurant's name
@@ -41,10 +40,8 @@ exports.getDishes = async (req, res) => {
 exports.getDishById = async (req, res) => {
     try {
         const { id } = req.params;
-        const dish = await Dish.findById(id)
-            .populate('restaurant', 'name') // Populate restaurant's name
-            .populate('category', 'name'); // Populate category's name
-
+        const dish = await Dish.findById(id);
+        console.log(dish);
         if (!dish) {
             return res.status(404).json({ error: "Dish not found" });
         }
@@ -58,23 +55,30 @@ exports.getDishById = async (req, res) => {
 exports.updateDish = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, restaurant, category } = req.body;
+        const updatedDish = req.body;
 
+        const name = updatedDish.name;
+        const price = updatedDish.price;
+        const desciption = updatedDish.desciption;
+        const category = updatedDish.category;
+        const restaurant = updatedDish.restaurant;
+        console.log(name);
         // Validate related references (optional)
-        if (restaurant && !(await Restaurant.findById(restaurant))) {
+        if (updatedDish.restaurant && !(await Restaurant.findById(updatedDish.restaurant))) {
             return res.status(400).json({ error: "Invalid restaurant ID" });
         }
-        if (category && !(await Category.findById(category))) {
+        if (updatedDish.category && !(await Category.findById(updatedDish.category))) {
             return res.status(400).json({ error: "Invalid category ID" });
         }
 
         const dish = await Dish.findByIdAndUpdate(
             id,
-            { name, description, price, restaurant, category },
+            { name, desciption, price, restaurant, category },
             { new: true, runValidators: true }
         );
 
         if (!dish) {
+            console.log("dish not found")
             return res.status(404).json({ error: "Dish not found" });
         }
         res.status(200).json({ message: "Dish updated successfully", dish });

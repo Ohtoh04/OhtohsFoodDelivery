@@ -5,14 +5,14 @@ import '../../style.css'; // Import the CSS
 class LoginForm extends Component {
     constructor(props) {
         super(props);
-        let username = "";
-        let usernameIsValid = this.validateUsername(username);
+        let name = "";
+        let nameIsValid = this.validatename(name);
         let password = "";
         let passwordIsValid = this.validatePassword(password);
         this.state = {
-            username: username,
+            name: name,
             password: password,
-            usernameValid: usernameIsValid,
+            nameValid: nameIsValid,
             passwordValid: passwordIsValid,
 
             redirectToProfile: false,
@@ -26,8 +26,8 @@ class LoginForm extends Component {
     validatePassword(password){
         return password.length > 3;
     }
-    validateUsername(username){
-        return username.length > 2;
+    validatename(name){
+        return name.length > 2;
     }
     onPasswordChange(e) {
         const val = e.target.value;
@@ -36,8 +36,8 @@ class LoginForm extends Component {
     }
     onNameChange(e) {
         const val = e.target.value;
-        const valid = this.validateUsername(val);
-        this.setState({username: val, usernameValid: valid});
+        const valid = this.validatename(val);
+        this.setState({name: val, nameValid: valid});
     }
 
     handleGoogleLogin() {
@@ -46,7 +46,7 @@ class LoginForm extends Component {
 
     async handleSubmit(e) {
         e.preventDefault();
-        if (this.state.usernameValid ===true && this.state.passwordValid===true){
+        if (this.state.nameValid ===true && this.state.passwordValid===true){
             const response = await fetch("http://localhost:3000/login", {
                 method: "POST",
                 headers: {
@@ -54,15 +54,14 @@ class LoginForm extends Component {
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    username: this.state.username,
+                    name: this.state.name,
                     password: this.state.password,
                 })
             });
             const data = await response.json();
             if (response.ok) {
-                const { setRole, setProfile } = this.props;
-                setProfile(data.profile);
-                setRole(data.role);
+                const {setUser} = this.props;
+                setUser(data.user);
                 this.setState({redirectToProfile: true});
             } else {
                 alert(`Ошибка: ${data.message}`);
@@ -77,7 +76,7 @@ class LoginForm extends Component {
             return <Navigate to="/profile" />;
         }
 
-        let nameColor = this.state.usernameValid===true?"green":"red";
+        let nameColor = this.state.nameValid===true?"green":"red";
         let passwordColor = this.state.passwordValid===true?"green":"red";
 
         return (
@@ -86,8 +85,8 @@ class LoginForm extends Component {
                     <h1 className="auth-title">Log In</h1>
                     <form onSubmit={this.handleSubmit} className="auth-form">
                         <input
-                        type="email"
-                        placeholder="Email"
+                        type="text"
+                        placeholder="name"
                         className="auth-input"
                         required
                         onChange={this.onNameChange}

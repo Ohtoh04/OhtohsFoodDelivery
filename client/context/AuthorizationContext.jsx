@@ -1,37 +1,41 @@
-import {createContext, useContext, useEffect, useState} from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-export const AuthorizationContext = createContext();
+const AuthContext = createContext();
 
-export const AuthorizationProvider = ({ children }) => {
-    const [profile, setProfile] = useState(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
 
-    const fetchUserData = async () => {
-        const response = await fetch("http://localhost:3000/profile", {
-            credentials: "include",
-        });
-        const data = await response.json();
-        console.log(data);
-        if (response.ok) {
-            setProfile(data.profile);
-            console.log("profile set successfully");
-        } else {
-            console.log("rprofile set failure");
-        }
+  const fetchUserData = async () => {
+    const response = await fetch("http://localhost:3000/profile", {
+        credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    if (response.ok) {
+        setUser(data.profile);
+        console.log("user_response_success");
+    } else {
+        setUser(null);
+        console.log("user_response_fail");
+    }
 
-    };
+  };
 
-    useEffect(() => {
-        fetchUserData();
-    }, []);
+  useEffect(() => {
+      fetchUserData();
+  }, []);
 
+  const logout = () => {
+    setUser(null);
+    axios.post('http:/localhost:3000/logout');
+  };
 
-    return <AuthorizationContext.Provider
-        value={{
-            profile,
-            setProfile
-        }}>
-        {children}
-    </AuthorizationContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, setUser, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuthorization = () => useContext(AuthorizationContext);
+export const useAuth = () => useContext(AuthContext);

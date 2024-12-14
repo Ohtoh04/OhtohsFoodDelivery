@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router";
 import axios from 'axios';
 import '../style.css'; // Import the CSS
 
@@ -25,7 +26,7 @@ const DishList = () => {
 
     const handleUpdateDish = async () => {
         try {
-            const response = await axios.put(`/api/dishes/${editDish._id}`, editDish);
+            const response = await axios.put(`http://localhost:3000/api/dishes/${editDish._id}`, editDish);
             setDishes(dishes.map(d => (d._id === response.data.dish._id ? response.data.dish : d)));
             setEditDish(null);
         } catch (error) {
@@ -35,7 +36,7 @@ const DishList = () => {
 
     const handleDeleteDish = async (id) => {
         try {
-            await axios.delete(`/api/dishes/${id}`);
+            await axios.delete(`http://localhost:3000/api/dishes/${id}`);
             setDishes(dishes.filter(d => d._id !== id));
         } catch (error) {
             console.error('Error deleting dish:', error);
@@ -81,9 +82,12 @@ const DishList = () => {
                                 <p className="dish-card-description">{dish.description}</p>
                                 <p className="dish-card-price">Price: ${dish.price}</p>
                                 <div className="crud-buttons">
-                                    <button className="edit-button" onClick={() => setEditDish(dish)}>
-                                        Edit
-                                    </button>
+                                    <Link to={`/dishes/edit/${dish._id}`}>
+                                        <button className="edit-button">Edit</button>
+                                    </Link>
+                                    <Link to={`/dishes/details/${dish._id}`}>
+                                        <button className="details-button">Details</button>
+                                    </Link>
                                     <button className="delete-button" onClick={() => handleDeleteDish(dish._id)}>
                                         Delete
                                     </button>

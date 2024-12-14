@@ -1,10 +1,12 @@
 require('dotenv').config();
 
 const express = require("express");
+const session = require("express-session");
 const cors = require("cors");
 const path = require("path"); // Core module to handle file paths
 const app = express();
 const mongoose = require("mongoose");
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 3000;
 
 // Authentication requirements
@@ -17,23 +19,29 @@ const AuthRoutes = require('./routes/AuthRoutes.js');
 const RestaurantRoutes = require('./routes/RestaurantRoutes.js'); // Adjust the path
 const CategoryRoutes = require('./routes/CategoryRoutes.js'); // Adjust the path
 
+const sess = {
+    secret: process.env.SESSION_SECRET,
+    cookie: {}
+};
+
 const corsOpt = {
     origin: 'http://localhost:5173',
     credentials: true,
+    resave: false,
+    saveUninitialized: true,
 };
 
 // Middleware
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
-//app.use(session(sess));
+app.use(session(sess));
+app.use(passport.initialize());
+app.use(passport.session(sess));
+app.use(cookieParser());
 app.use(express.json()); // For parsing JSON requests
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(async () => {
     console.log('Connected to MongoDB');
-    await seeder.seedDatabase();
 })
 .catch((error) => {
     console.error('Error connecting to MongoDB:', error);

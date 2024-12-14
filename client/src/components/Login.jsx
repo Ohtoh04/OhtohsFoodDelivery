@@ -1,11 +1,11 @@
 import LoginForm from "./forms/LoginForm.jsx";
-import {useAuthorization} from "../../context/AuthorizationContext.jsx";
+import {useAuth} from "../../context/AuthorizationContext.jsx";
 
 const Login = () => {
-    const {setProfile} = useAuthorization();
+    const {setUser} = useAuth();
     return (
         <div className="login">
-            <LoginForm setProfile={setProfile}/>
+            <LoginForm setUser={setUser}/>
         </div>
     );
 };

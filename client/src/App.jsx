@@ -8,6 +8,8 @@ import DishUpdate from "./components/DishUpdate";
 import DishAdd from "./components/DishAdd";
 import Header from "./components/Header";
 import Home from "./components/Home";
+import DishDetails from './components/DishDetails';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -15,13 +17,31 @@ function App() {
       <Header />
       <main>
 
-        <Routes>
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dishes" element={<DishList />} />
-          <Route path="/dishes/edit" element={<DishUpdate />} />
-          <Route path="/dishes/add" element={<DishAdd />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/dishes" element={<DishList />} />
+          <Route
+            path="/dishes/edit/:dishId"
+            element={
+              <ProtectedRoute role="admin">
+                <DishUpdate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dishes/details/:dishId"
+            element={<DishDetails />}
+          />
+          <Route
+            path="/dishes/add"
+            element={
+              <ProtectedRoute role="admin">
+                <DishAdd />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </BrowserRouter>

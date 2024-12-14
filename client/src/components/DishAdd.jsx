@@ -46,7 +46,7 @@ const DishAdd = () => {
 		};
 
 		try {
-			await axios.post('http://localhost:3000/dishes/', dish); // Adjust the endpoint to match your API
+			await axios.post('http://localhost:3000/api/dishes/', dish); // Adjust the endpoint to match your API
 			alert('Dish created successfully!');
 			// Optionally reset the form
 			setName('');

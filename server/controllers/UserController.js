@@ -44,7 +44,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    generateToken(res, user._id);
+    passport.authenticate('')
 
     res.status(201).json({
       _id: user._id,

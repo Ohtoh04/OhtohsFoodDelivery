@@ -266,6 +266,20 @@ body, h1, ul, li, a {
   background-color: #0056b3;
 }
 
+.details-button {
+  background-color: #f6fa00; /* Blue for Edit */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.details-button:hover {
+  background-color: #fbf540;
+}
+
 .delete-button {
   background-color: #dc3545; /* Red for Delete */
   color: white;

@@ -1,52 +1,76 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router';
+import '../style.css'; // Import the CSS
 
-const DishDetails = ({ dishId }) => {
-  const [dish, setDish] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const DishDetails = () => {
+	const { dishId } = useParams(); // Get the dishId from the URL
+	const [dish, setDish] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const [restaurants, setRestaurants] = useState([]);
+	const [categories, setCategories] = useState([]);
 
-  useEffect(() => {
-    const fetchDish = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`/api/dishes/${dishId}`);
-        setDish(response.data);
-      } catch (err) {
-        setError(err.response?.data?.error || "Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
+	// Fetch restaurants, categories, and dish details when the component mounts
+	useEffect(() => {
+		const fetchRestaurants = async () => {
+			try {
+				const res = await axios.get('http://localhost:3000/api/restaurants'); // Adjust the endpoint to match your API
+				setRestaurants(res.data);
+			} catch (err) {
+				console.error('Error fetching restaurants:', err);
+			}
+		};
 
-    fetchDish();
-  }, [dishId]);
+		const fetchCategories = async () => {
+			try {
+				const res = await axios.get('http://localhost:3000/api/categories'); // Adjust the endpoint to match your API
+				setCategories(res.data);
+			} catch (err) {
+				console.error('Error fetching categories:', err);
+			}
+		};
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+		const fetchDish = async () => {
+			try {
+				const res = await axios.get(`http://localhost:3000/api/dishes/${dishId}`);
+				setDish(res.data);
+				setLoading(false);
+			} catch (err) {
+				console.error('Error fetching dish details:', err);
+				setError('Failed to fetch dish details. Please try again later.');
+				setLoading(false);
+			}
+		};
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+		fetchRestaurants();
+		fetchCategories();
+		fetchDish();
+	}, [dishId]);
 
-  return (
-    <div className="dish-details">
-      <h2>{dish.name}</h2>
-      <p><strong>Description:</strong> {dish.desciption || "No description provided"}</p>
-      <p><strong>Price:</strong> ${dish.price.toFixed(2)}</p>
-      {dish.restaurant && (
-        <p>
-          <strong>Restaurant:</strong> {dish.restaurant.name}
-        </p>
-      )}
-      {dish.category && (
-        <p>
-          <strong>Category:</strong> {dish.category.name}
-        </p>
-      )}
-    </div>
-  );
+	// Map restaurant and category IDs to names
+	const getRestaurantName = () => {
+		const restaurant = restaurants.find(r => r._id === dish.restaurant);
+		return restaurant ? restaurant.restaurantName : 'Unknown';
+	};
+
+	const getCategoryName = () => {
+		const category = categories.find(c => c._id === dish.category);
+		return category ? category.name : 'Unknown';
+	};
+
+	if (loading) return <div>Loading...</div>;
+	if (error) return <div>{error}</div>;
+
+	return (
+		<div className="details-container">
+			<h1>{dish.name}</h1>
+			<p><strong>Description:</strong> {dish.desciption}</p>
+			<p><strong>Price:</strong> ${dish.price.toFixed(2)}</p>
+			<p><strong>Restaurant:</strong> {getRestaurantName()}</p>
+			<p><strong>Category:</strong> {getCategoryName()}</p>
+		</div>
+	);
 };
 
 export default DishDetails;
